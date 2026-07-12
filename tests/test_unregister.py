@@ -1,25 +1,23 @@
-from fastapi.testclient import TestClient
-
-from src.app import app, activities
+from src.app import activities
 
 
-client = TestClient(app)
-
-
-def test_unregister_participant_from_activity():
+def test_unregister_participant_from_activity(client):
+    # Arrange
+    email = "newstudent@mergington.edu"
     initial_participants = list(activities["Chess Club"]["participants"])
 
+    # Act
     signup_response = client.post(
         "/activities/Chess Club/signup",
-        params={"email": "newstudent@mergington.edu"},
+        params={"email": email},
     )
-    assert signup_response.status_code == 200
-
     unregister_response = client.delete(
         "/activities/Chess Club/signup",
-        params={"email": "newstudent@mergington.edu"},
+        params={"email": email},
     )
 
+    # Assert
+    assert signup_response.status_code == 200
     assert unregister_response.status_code == 200
-    assert "newstudent@mergington.edu" not in activities["Chess Club"]["participants"]
+    assert email not in activities["Chess Club"]["participants"]
     assert activities["Chess Club"]["participants"] == initial_participants
